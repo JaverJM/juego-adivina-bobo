@@ -7,29 +7,6 @@ y el jugador deberá adivinar qué número es el que se eligió.
 """
 
 '''
-RETO NUEVO
-🧠 Lógica:
-
-El número a adivinar estará entre 1 y 100. LISTO
-
-El jugador solo tendrá 7 intentos. LISTO
-
-Después de cada intento, el juego mostrará una pista:
-
-Si el número ingresado es menor al número secreto, mostrar: “Muy bajo, intenta un número más alto”.
-
-Si es mayor, mostrar: “Muy alto, intenta uno más bajo”. LISTO
-
-Si adivina antes de quedarse sin intentos, gana.
-
-Si se queda sin intentos, mostrar: “¡Has perdido! El número era: X”.
-
-💡 Interfaz:
-Agrega una etiqueta que diga cuántos intentos le quedan.
-
-Desactiva el botón “Adivinar” si se acaba el juego (ya sea por ganar o por perder).
-
-Mantén el botón “Me rindo”.
 
 💾 Bonus opcional:
 Guarda en un archivo .txt cuántas veces ha ganado o perdido el usuario (contador simple).
@@ -70,25 +47,25 @@ def validar_numero():
         if intento == numero_secreto:
             messagebox.showinfo("¡Correcto!", "JAJAJAJA ATINASTE! ganaste un coco 🥥")
             boton_adivinar.config(state="disabled")
+            etiqueta_intentos.config(text="Lo lograste")
             reiniciar_juego()
         else:
             #si es incorrecto jugador tiene 7 intentos
             if numero_intentos <= 1:
-                boton_adivinar.config(state="disabled")
                 messagebox.showerror("Incorrecto", f"¡PERDEDORRRR! ni con 7 intentos puedes jajajaja el número era {numero_secreto}")
+                boton_adivinar.config(state="disabled")
+                etiqueta_intentos.config(text="Jajaja no tienes intentos jajaja")
                 return
              
             else:
                 numero_intentos -= 1
-                etiqueta_intentos.config()
+                etiqueta_intentos.config(text=f"Intentos disponibles: {numero_intentos}")
                 if intento < numero_secreto:
                     
-                    messagebox.showerror("Incorrecto", f"""vuelve a intentarlo tienes {numero_intentos} intentos de {numero_intentos + 1}
-Tip: el número es muy bajo, intenta un número más alto""")
+                    messagebox.showerror("Incorrecto", "El número es muy bajo, intenta un número más alto")
                     
                 elif intento > numero_secreto:
-                    messagebox.showerror("Incorrecto", f"""vuelve a intentarlo tienes {numero_intentos} intentos de {numero_intentos + 1}
-Tip: el número es muy alto, intenta un número más bajo""")
+                    messagebox.showerror("Incorrecto", "El número es muy alto, intenta un número más bajo")
                     
             #entrada.set("")  # Borrar el campo
     except ValueError:
@@ -102,7 +79,7 @@ def rendirse():
 # 6. Función para reiniciar el juego
 def reiniciar_juego():
     global numero_secreto
-    numero_secreto = random.randint(1, 10)
+    numero_secreto = random.randint(1, 100)
     entrada.set("")
 
 #def guardar_txt():
@@ -118,6 +95,19 @@ boton_rendirse.pack(pady=5)
 #Etiquetas:
 etiqueta_intentos = tk.Label(ventana, text=f"Intentos disponibles: {numero_intentos}", font=("Arial", 16))
 etiqueta_intentos.pack(pady=5)
+
+
+
+# Centrar ventana
+ventana.update_idletasks()
+ancho = ventana.winfo_width()
+alto = ventana.winfo_height()
+pantalla_ancho = ventana.winfo_screenwidth()
+pantalla_alto = ventana.winfo_screenheight()
+x = (pantalla_ancho // 2) - (ancho // 2)
+y = (pantalla_alto // 2) - (alto // 2)
+ventana.geometry(f"+{x}+{y}")
+
 
 # 8. Iniciar el loop de la app
 ventana.mainloop()
