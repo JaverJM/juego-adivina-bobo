@@ -21,3 +21,7 @@ Thumbs.db
 # Bases de datos
 *.sqlite3
 *.db
+
+# Ignorar la carpeta ejecutable y cualquier exe dentro
+ejecutable/
+*.exe
