@@ -14,7 +14,7 @@ Adivina-Bobo es un juego sencillo en Python donde la computadora genera un núme
 ## Funcionalidades
 
 - Juego con interfaz gráfica (Tkinter).  
-- Niveles de dificultad ajustables. #proximamente 
+- Niveles de dificultad ajustables.
 - Guarda récords de partidas ganadas y perdidas en un archivo `.txt`. 
 - Archivo ejecutable disponible para Windows (`adivina-bobo.exe`).  
 

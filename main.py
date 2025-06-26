@@ -12,30 +12,21 @@ y el jugador deberá adivinar qué número es el que se eligió.
 Guarda en un archivo .txt cuántas veces ha ganado o perdido el usuario (contador simple).
 
 '''
-
+# --- 1. IMPORTACIONES ---
 import tkinter as tk
 from tkinter import messagebox
 import random
 
 
+# --- 2. VARIABLES GLOBALES / CONFIGURACIÓN ---
 
-# 1. Generar número aleatorio
+# Generar número aleatorio
 numero_secreto = random.randint(1, 100)
 numero_intentos = 7
 
-# 2. Crear ventana principal
-ventana = tk.Tk()
-ventana.title("Adivina el número")
-ventana.geometry("300x250")
-ventana.resizable(False, False)
+# --- 3. FUNCIONES DE LÓGICA ---
 
-# 3. Entrada del usuario
-entrada = tk.StringVar()
-
-campo_entrada = tk.Entry(ventana, textvariable=entrada, font=("Arial", 20), justify='center')
-campo_entrada.pack(pady=20)
-
-# 4. Función para validar el número
+#Función para validar el número
 def validar_numero():
     global numero_intentos
     try:
@@ -48,6 +39,7 @@ def validar_numero():
             messagebox.showinfo("¡Correcto!", "JAJAJAJA ATINASTE! ganaste un coco 🥥")
             boton_adivinar.config(state="disabled")
             etiqueta_intentos.config(text="Lo lograste")
+            guardar_resultado("Ganó")
             reiniciar_juego()
         else:
             #si es incorrecto jugador tiene 7 intentos
@@ -55,6 +47,7 @@ def validar_numero():
                 messagebox.showerror("Incorrecto", f"¡PERDEDORRRR! ni con 7 intentos puedes jajajaja el número era {numero_secreto}")
                 boton_adivinar.config(state="disabled")
                 etiqueta_intentos.config(text="Jajaja no tienes intentos jajaja")
+                guardar_resultado("Perdió")                
                 return
              
             else:
@@ -71,43 +64,63 @@ def validar_numero():
     except ValueError:
         messagebox.showwarning("Error", "Por favor ingresa un número válido.")
 
-# 5. Función para rendirse
+# Función para rendirse
 def rendirse():
     messagebox.showinfo("Te rendiste", "JAJAJAJA SI ERES UN PER DE DOR!!!!!")
     ventana.destroy()  # Cerrar la ventana
 
-# 6. Función para reiniciar el juego
+# Función para reiniciar el juego
 def reiniciar_juego():
     global numero_secreto
     numero_secreto = random.randint(1, 100)
     entrada.set("")
 
-#def guardar_txt():
-    #aquí pondré la función para el guardado del txt y la llamaré cuando se cumpla el win o el losse del usuario.
+# Función para guardar las veces que jugador perdió y ganó en un TXT
+def guardar_resultado(resultado):
+    with open("partidas.txt", "a", encoding="utf-8") as archivo:
+        archivo.write(resultado + "\n")
 
-# 7. Botones
-boton_adivinar = tk.Button(ventana, text="Adivinar", font=("Arial", 16), command=validar_numero)
-boton_adivinar.pack(pady=5)
+# --- 4. INTERFAZ GRÁFICA (TKINTER) ---
 
-boton_rendirse = tk.Button(ventana, text="Me rindo", font=("Arial", 16), fg="white", bg="red", command=rendirse)
-boton_rendirse.pack(pady=5)
-
-#Etiquetas:
-etiqueta_intentos = tk.Label(ventana, text=f"Intentos disponibles: {numero_intentos}", font=("Arial", 16))
-etiqueta_intentos.pack(pady=5)
-
-
-
-# Centrar ventana
-ventana.update_idletasks()
-ancho = ventana.winfo_width()
-alto = ventana.winfo_height()
-pantalla_ancho = ventana.winfo_screenwidth()
-pantalla_alto = ventana.winfo_screenheight()
-x = (pantalla_ancho // 2) - (ancho // 2)
-y = (pantalla_alto // 2) - (alto // 2)
-ventana.geometry(f"+{x}+{y}")
+def interfaz_ventanas():
+    # Crear ventana principal
+    ventana = tk.Tk()
+    ventana.title("Adivina el número")
+    ventana.geometry("300x250")
+    ventana.resizable(False, False)
 
 
-# 8. Iniciar el loop de la app
-ventana.mainloop()
+
+def interfaz_widgets():
+    # Entrada del usuario
+    entrada = tk.StringVar()
+
+    campo_entrada = tk.Entry(ventana, textvariable=entrada, font=("Arial", 20), justify='center')
+    campo_entrada.pack(pady=20)
+
+    # Botones
+    boton_adivinar = tk.Button(ventana, text="Adivinar", font=("Arial", 16), command=validar_numero)
+    boton_adivinar.pack(pady=5)
+
+    boton_rendirse = tk.Button(ventana, text="Me rindo", font=("Arial", 16), fg="white", bg="red", command=rendirse)
+    boton_rendirse.pack(pady=5)
+
+    #Etiquetas:
+    etiqueta_intentos = tk.Label(ventana, text=f"Intentos disponibles: {numero_intentos}", font=("Arial", 16))
+    etiqueta_intentos.pack(pady=5)
+
+    # Centrar ventana
+    ventana.update_idletasks()
+    ancho = ventana.winfo_width()
+    alto = ventana.winfo_height()
+    pantalla_ancho = ventana.winfo_screenwidth()
+    pantalla_alto = ventana.winfo_screenheight()
+    x = (pantalla_ancho // 2) - (ancho // 2)
+    y = (pantalla_alto // 2) - (alto // 2)
+    ventana.geometry(f"+{x}+{y}")
+
+# --- 5. EJECUCIÓN PRINCIPAL ---
+
+if __name__ == "__main__":
+    ventana = crear_ventana_principal()
+    ventana.mainloop()  # Aquí queda el programa "vivo"
