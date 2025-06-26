@@ -80,18 +80,39 @@ def guardar_resultado(resultado):
     with open("partidas.txt", "a", encoding="utf-8") as archivo:
         archivo.write(resultado + "\n")
 
-# --- 4. INTERFAZ GRÁFICA (TKINTER) ---
+# --- 4. INTERFAZ GRÁFICA (TKINTER)
 
 def interfaz_ventanas():
+    global ventana, selector
+    
     # Crear ventana principal
     ventana = tk.Tk()
     ventana.title("Adivina el número")
     ventana.geometry("300x250")
     ventana.resizable(False, False)
+    
+    # Centrar ventana
+    ventana.update_idletasks()
+    ancho = ventana.winfo_width()
+    alto = ventana.winfo_height()
+    pantalla_ancho = ventana.winfo_screenwidth()
+    pantalla_alto = ventana.winfo_screenheight()
+    x = (pantalla_ancho // 2) - (ancho // 2)
+    y = (pantalla_alto // 2) - (alto // 2)
+    ventana.geometry(f"+{x}+{y}")
 
+    # Crea ventana de selección
+    selector = tk.Toplevel()
+    selector.title("Selecciona la dificultad")
+    selector.geometry("250x150")
+    selector.transient(ventana)  # Asociar con ventana principal
+    selector.grab_set()          # Bloquear interacción con ventana principal
 
 
 def interfaz_widgets():
+    global entrada, campo_entrada, boton_adivinar, boton_rendirse, etiqueta_intentos, boton_facil
+
+    # --- VENTANA PRINCIPAL -- (ventana)
     # Entrada del usuario
     entrada = tk.StringVar()
 
@@ -105,22 +126,21 @@ def interfaz_widgets():
     boton_rendirse = tk.Button(ventana, text="Me rindo", font=("Arial", 16), fg="white", bg="red", command=rendirse)
     boton_rendirse.pack(pady=5)
 
-    #Etiquetas:
+    # Etiquetas
     etiqueta_intentos = tk.Label(ventana, text=f"Intentos disponibles: {numero_intentos}", font=("Arial", 16))
     etiqueta_intentos.pack(pady=5)
 
-    # Centrar ventana
-    ventana.update_idletasks()
-    ancho = ventana.winfo_width()
-    alto = ventana.winfo_height()
-    pantalla_ancho = ventana.winfo_screenwidth()
-    pantalla_alto = ventana.winfo_screenheight()
-    x = (pantalla_ancho // 2) - (ancho // 2)
-    y = (pantalla_alto // 2) - (alto // 2)
-    ventana.geometry(f"+{x}+{y}")
+    # --- VENTANA SELECTOR DE DIFICULTAD --- (selector)
+
+    etiqueta_dificultad = tk.Label(selector, text="Selecciona tu dificultad", font=("Arial", 16))
+    etiqueta_dificultad.pack(pady=5)
+
+    boton_facil = tk.Button(selector, text="Modo facil", font=("Arial")) # 16, command=lambda:)
+    boton_facil.pack(pady=5)
+                            
 
 # --- 5. EJECUCIÓN PRINCIPAL ---
 
 if __name__ == "__main__":
-    ventana = crear_ventana_principal()
+    ventana = interfaz_ventanas()
     ventana.mainloop()  # Aquí queda el programa "vivo"
