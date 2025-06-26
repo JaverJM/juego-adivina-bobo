@@ -42,6 +42,8 @@ source venv/bin/activate   # o venv\Scripts\activate en Windows
 pip install -r requirements.txt   # si lo tienes, sino puedes omitir este paso
 python main.py
 
+```
+
 ## Contacto
 Si tienes preguntas o sugerencias, no dudes en contactarme.
 
