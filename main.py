@@ -6,12 +6,6 @@ Descripción: Este es un juego que la computadora generará un número aleatorio
 y el jugador deberá adivinar qué número es el que se eligió.
 """
 
-'''
-
-💾 Bonus opcional:
-Guarda en un archivo .txt cuántas veces ha ganado o perdido el usuario (contador simple).
-
-'''
 # --- 1. IMPORTACIONES ---
 import tkinter as tk
 from tkinter import messagebox
@@ -21,18 +15,20 @@ import random
 # --- 2. VARIABLES GLOBALES / CONFIGURACIÓN ---
 
 # Generar número aleatorio
-numero_secreto = random.randint(1, 100)
-numero_intentos = 7
+limite_intento_max = 2
+numero_secreto = random.randint(1, limite_intento_max)
+numero_intentos = 0
+
 
 # --- 3. FUNCIONES DE LÓGICA ---
 
 #Función para validar el número
 def validar_numero():
-    global numero_intentos
+    global numero_intentos, limite_intento_max
     try:
         intento = int(entrada.get())  # Convertir el texto ingresado a número
-        if intento < 1 or intento > 100:
-            messagebox.showwarning("Número inválido", "Debes ingresar un número del 1 al 100.")
+        if intento < 1 or intento > limite_intento_max:
+            messagebox.showwarning("Número inválido", f"Debes ingresar un número del 1 al {limite_intento_max}.")
             return
 
         if intento == numero_secreto:
@@ -64,6 +60,21 @@ def validar_numero():
     except ValueError:
         messagebox.showwarning("Error", "Por favor ingresa un número válido.")
 
+# Función selector dificultad
+def seleccionar_dificultad(Nivel):
+    global numero_intentos, limite_intento_max
+    if Nivel == "Facil":
+         limite_intento_max = 10
+         numero_intentos = 7
+    elif Nivel == "Medio":
+        limite_intento_max = 50
+        numero_intentos = 6
+    elif Nivel == "Difícil":
+        limite_intento_max = 100
+        numero_intentos = 5
+    selector.destroy
+
+
 # Función para rendirse
 def rendirse():
     messagebox.showinfo("Te rendiste", "JAJAJAJA SI ERES UN PER DE DOR!!!!!")
@@ -80,7 +91,7 @@ def guardar_resultado(resultado):
     with open("partidas.txt", "a", encoding="utf-8") as archivo:
         archivo.write(resultado + "\n")
 
-# --- 4. INTERFAZ GRÁFICA (TKINTER)
+# --- 4. INTERFAZ GRÁFICA (TKINTER) ---
 
 def interfaz_ventanas():
     global ventana, selector
@@ -104,9 +115,18 @@ def interfaz_ventanas():
     # Crea ventana de selección
     selector = tk.Toplevel()
     selector.title("Selecciona la dificultad")
-    selector.geometry("250x150")
+    selector.geometry("250x200")
     selector.transient(ventana)  # Asociar con ventana principal
     selector.grab_set()          # Bloquear interacción con ventana principal
+
+    selector.update_idletasks()
+    ancho = selector.winfo_width()
+    alto = selector.winfo_height()
+    pantalla_ancho = selector.winfo_screenwidth()
+    pantalla_alto = selector.winfo_screenheight()
+    x = (pantalla_ancho // 2) - (ancho // 2)
+    y = (pantalla_alto // 2) - (alto // 2)
+    selector.geometry(f"+{x}+{y}")
 
 
 def interfaz_widgets():
@@ -132,15 +152,20 @@ def interfaz_widgets():
 
     # --- VENTANA SELECTOR DE DIFICULTAD --- (selector)
 
-    etiqueta_dificultad = tk.Label(selector, text="Selecciona tu dificultad", font=("Arial", 16))
-    etiqueta_dificultad.pack(pady=5)
+    tk.Label(selector, text="Selecciona tu dificultad", font=("Arial", 16)).pack(pady=5) 
 
-    boton_facil = tk.Button(selector, text="Modo facil", font=("Arial")) # 16, command=lambda:)
-    boton_facil.pack(pady=5)
-                            
+    tk.Button(selector, text="Modo facil", font=("Arial", 16), command=lambda:seleccionar_dificultad("Facil")).pack(pady=5)
+    tk.Button(selector, text="Modo Medio", font=("Arial", 16), command=lambda:seleccionar_dificultad("Medio")).pack(pady=5)
+    tk.Button(selector, text="Modo Difícil", font=("Arial", 16), command=lambda:seleccionar_dificultad("Difícil")).pack(pady=5)                            
 
 # --- 5. EJECUCIÓN PRINCIPAL ---
 
 if __name__ == "__main__":
-    ventana = interfaz_ventanas()
+    interfaz_ventanas()
+    interfaz_widgets()
+    seleccionar_dificultad(Nivel="")
+    validar_numero()
+    rendirse()
+    reiniciar_juego()
+    guardar_resultado()
     ventana.mainloop()  # Aquí queda el programa "vivo"
