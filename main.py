@@ -17,7 +17,7 @@ import random
 # Generar número aleatorio
 limite_intento_max = 2
 numero_secreto = random.randint(1, limite_intento_max)
-numero_intentos = 0
+numero_intentos = ""
 
 
 # --- 3. FUNCIONES DE LÓGICA ---
@@ -65,14 +65,28 @@ def seleccionar_dificultad(Nivel):
     global numero_intentos, limite_intento_max
     if Nivel == "Facil":
          limite_intento_max = 10
-         numero_intentos = 7
+         numero_intentos = 3
     elif Nivel == "Medio":
         limite_intento_max = 50
-        numero_intentos = 6
+        numero_intentos = 5
     elif Nivel == "Difícil":
         limite_intento_max = 100
-        numero_intentos = 5
-    selector.destroy
+        numero_intentos = 10
+    elif Nivel == "Extremo":
+        limite_intento_max = 500
+        numero_intentos = 15
+    elif Nivel == "Injusto":
+        limite_intento_max = 1000
+        numero_intentos = 10
+    elif Nivel == "Imposible":
+        limite_intento_max = 10000
+        numero_intentos = 3
+
+    #Actualizar etiqueta de intentos:
+    etiqueta_intentos.config(text=f"Numeor de intentos: {numero_intentos}")
+
+    #Cerrar ventana del selector    
+    selector.destroy()
 
 
 # Función para rendirse
@@ -82,8 +96,8 @@ def rendirse():
 
 # Función para reiniciar el juego
 def reiniciar_juego():
-    global numero_secreto
-    numero_secreto = random.randint(1, 100)
+    global numero_secreto, limite_intento_max
+    numero_secreto = random.randint(1, limite_intento_max)
     entrada.set("")
 
 # Función para guardar las veces que jugador perdió y ganó en un TXT
@@ -115,7 +129,7 @@ def interfaz_ventanas():
     # Crea ventana de selección
     selector = tk.Toplevel()
     selector.title("Selecciona la dificultad")
-    selector.geometry("250x200")
+    selector.geometry("250x400")
     selector.transient(ventana)  # Asociar con ventana principal
     selector.grab_set()          # Bloquear interacción con ventana principal
 
@@ -154,18 +168,16 @@ def interfaz_widgets():
 
     tk.Label(selector, text="Selecciona tu dificultad", font=("Arial", 16)).pack(pady=5) 
 
-    tk.Button(selector, text="Modo facil", font=("Arial", 16), command=lambda:seleccionar_dificultad("Facil")).pack(pady=5)
-    tk.Button(selector, text="Modo Medio", font=("Arial", 16), command=lambda:seleccionar_dificultad("Medio")).pack(pady=5)
-    tk.Button(selector, text="Modo Difícil", font=("Arial", 16), command=lambda:seleccionar_dificultad("Difícil")).pack(pady=5)                            
+    tk.Button(selector, text="Modo facil", font=("Arial", 16), fg="#ffffff", bg="#28a745", command=lambda:seleccionar_dificultad("Facil")).pack(pady=5)
+    tk.Button(selector, text="Modo Medio", font=("Arial", 16), fg="#000000", bg="#fd7e14", command=lambda:seleccionar_dificultad("Medio")).pack(pady=5)
+    tk.Button(selector, text="Modo Difícil", font=("Arial", 16), fg="#ffffff", bg="#dc3545", command=lambda:seleccionar_dificultad("Difícil")).pack(pady=5)
+    tk.Button(selector, text="Modo Extremo", font=("Arial", 16), fg="#ffffff", bg="#8B0000", command=lambda:seleccionar_dificultad("Extremo")).pack(pady=5)
+    tk.Button(selector, text="Modo Injusto", font=("Arial", 16), fg="#FF0000", bg="#4B0000", command=lambda:seleccionar_dificultad("Injusto")).pack(pady=5)
+    tk.Button(selector, text="Modo Imposible", font=("Arial", 16), fg="#FF0000", bg="#000000", command=lambda:seleccionar_dificultad("Imposible")).pack(pady=5)
 
 # --- 5. EJECUCIÓN PRINCIPAL ---
 
 if __name__ == "__main__":
     interfaz_ventanas()
     interfaz_widgets()
-    seleccionar_dificultad(Nivel="")
-    validar_numero()
-    rendirse()
-    reiniciar_juego()
-    guardar_resultado()
     ventana.mainloop()  # Aquí queda el programa "vivo"
