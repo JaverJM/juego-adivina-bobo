@@ -24,7 +24,14 @@ numero_secreto = random.randint(1, limite_intento_max)
 numero_intentos = ""
 resultado_juego = ""
 
-# --- 3. FUNCIONES DE LÓGICA ---
+# --- 3. Base de datos SQL ---
+
+# Obtiene la carpeta donde está este script
+carpeta_base = os.path.dirname(os.path.abspath(__file__))
+
+# Ruta absoluta para la base de datos y txt
+ruta_db = os.path.join(carpeta_base, "datos_partidas.db")
+ruta_txt = os.path.join(carpeta_base, "partidas.txt")
 
 def inicializar_db():
     conexion = sqlite3.connect("datos_partidas.db")
@@ -41,6 +48,7 @@ def inicializar_db():
     ''')
     conexion.commit()
     conexion.close()
+
 
 # --- 4. FUNCIONES DE LÓGICA ---
 
@@ -91,7 +99,7 @@ def validar_numero():
 
 # Función selector dificultad
 def seleccionar_dificultad(Nivel):
-    global numero_intentos, limite_intento_max, dificultad_actual
+    global numero_intentos, limite_intento_max, dificultad_actual, numero_secreto
     
     configuraciones = {
         "Facil":    {"limite": 10,    "intentos": 3},
@@ -106,6 +114,7 @@ def seleccionar_dificultad(Nivel):
         limite_intento_max = configuraciones[Nivel]["limite"]
         numero_intentos = configuraciones[Nivel]["intentos"]
         dificultad_actual = Nivel
+        numero_secreto = random.randint(1, limite_intento_max)
     else:
         # Por si llega un valor no esperado
         print("Dificultad no reconocida")
