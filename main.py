@@ -22,7 +22,7 @@ import os
 limite_intento_max = 2
 numero_secreto = random.randint(1, limite_intento_max)
 numero_intentos = ""
-
+resultado_juego = ""
 
 # --- 3. FUNCIONES DE LÓGICA ---
 
@@ -46,7 +46,7 @@ def inicializar_db():
 
 #Función para validar el número
 def validar_numero():
-    global numero_intentos, limite_intento_max, dificultad_actual
+    global numero_intentos, limite_intento_max, dificultad_actual, resultado_juego
     try:
         intento = int(entrada.get())  # Convertir el texto ingresado a número
         if intento < 1 or intento > limite_intento_max:
@@ -56,18 +56,21 @@ def validar_numero():
         if intento == numero_secreto:
             messagebox.showinfo("¡Correcto!", "JAJAJAJA ¡ATINASTE! Ganaste un coco 🥥")
             boton_adivinar.config(state="disabled")
+            campo_entrada.config(state="disabled")
             etiqueta_intentos.config(text="Lo lograste")
             boton_rendirse.config(text="Terminar", fg="#28a745", bg="#FFFFFF")
+            resultado_juego = "Ganó"
             guardar_resultado("Ganó")
             guardar_resultado_sql("Ganó", dificultad_actual, intento)  # Por ejemplo
             reiniciar_juego()
         else:
             #si es incorrecto jugador tiene 7 intentos
             if numero_intentos <= 1:
-                messagebox.showerror("Incorrecto", f"¡PERDEDORRRR! Ni con  intentos puedes jajajaja, el número era {numero_secreto}")
+                messagebox.showerror("Incorrecto", f"¡PERDEDORRRR! Ni con {numero_intentos} intentos puedes jajajaja, el número era {numero_secreto}")
                 boton_adivinar.config(state="disabled")
                 campo_entrada.config(state="disabled")
                 etiqueta_intentos.config(text="Jajaja no tienes intentos jajaja")
+                resultado_juego = "Perdió"
                 guardar_resultado("Perdió")     
                 guardar_resultado_sql("Perdió", dificultad_actual, intento)  # Por ejemplo           
                 return
@@ -116,10 +119,10 @@ def seleccionar_dificultad(Nivel):
 
 # Función para rendirse
 def rendirse():
-    if guardar_resultado_sql == "Gano":
+    if resultado_juego == "Ganó":
         messagebox.showinfo("Lo Lograste", "Bien hecho campeón, disfruta tu coco")
         ventana.destroy()  # Cerrar la ventana    
-    elif guardar_resultado_sql == "Perdio":
+    elif resultado_juego == "Perdió":
         messagebox.showinfo("Te rendiste", "JAJAJAJA SI ERES ¡¡¡¡¡UN PER DE DOR!!!!!")
         ventana.destroy()  # Cerrar la ventana       
 
