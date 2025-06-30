@@ -18,7 +18,18 @@ Adivina-Bobo es un juego sencillo en Python donde la computadora genera un núme
 - Guarda récords de partidas ganadas y perdidas en un archivo `.txt`. 
 - Archivo ejecutable disponible para Windows (`adivina-bobo.exe`).  
 
-> ⚠️ **Pendiente:** Selector de dificultad y guardado en archivo `.txt` aún no implementados.
+## Nueva característica: Registro de partidas en SQLite
+
+El juego ahora guarda automáticamente el resultado de cada partida en una base de datos llamada `partidas.db`. Se almacena:
+
+- Resultado: Ganó o Perdió
+- Nivel de dificultad elegido
+- Número secreto generado
+- Intentos disponibles al comenzar
+- Fecha en que se jugó las partidas
+
+Esto permite a futuro ver estadísticas o analizar el historial de juegos.
+
 
 ---
 

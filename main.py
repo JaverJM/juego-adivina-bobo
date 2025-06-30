@@ -10,6 +10,10 @@ y el jugador deberá adivinar qué número es el que se eligió.
 import tkinter as tk
 from tkinter import messagebox
 import random
+import sqlite3
+from datetime import datetime
+import os
+
 
 
 # --- 2. VARIABLES GLOBALES / CONFIGURACIÓN ---
@@ -22,9 +26,27 @@ numero_intentos = ""
 
 # --- 3. FUNCIONES DE LÓGICA ---
 
+def inicializar_db():
+    conexion = sqlite3.connect("datos_partidas.db")
+    cursor = conexion.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS partidas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha TEXT,
+            dificultad TEXT,
+            numero_secreto INTEGER,
+            intento_final INTEGER,
+            resultado TEXT
+        )
+    ''')
+    conexion.commit()
+    conexion.close()
+
+# --- 4. FUNCIONES DE LÓGICA ---
+
 #Función para validar el número
 def validar_numero():
-    global numero_intentos, limite_intento_max
+    global numero_intentos, limite_intento_max, dificultad_actual
     try:
         intento = int(entrada.get())  # Convertir el texto ingresado a número
         if intento < 1 or intento > limite_intento_max:
@@ -32,18 +54,22 @@ def validar_numero():
             return
 
         if intento == numero_secreto:
-            messagebox.showinfo("¡Correcto!", "JAJAJAJA ATINASTE! ganaste un coco 🥥")
+            messagebox.showinfo("¡Correcto!", "JAJAJAJA ¡ATINASTE! Ganaste un coco 🥥")
             boton_adivinar.config(state="disabled")
             etiqueta_intentos.config(text="Lo lograste")
+            boton_rendirse.config(text="Terminar", fg="#28a745", bg="#FFFFFF")
             guardar_resultado("Ganó")
+            guardar_resultado_sql("Ganó", dificultad_actual, intento)  # Por ejemplo
             reiniciar_juego()
         else:
             #si es incorrecto jugador tiene 7 intentos
             if numero_intentos <= 1:
-                messagebox.showerror("Incorrecto", f"¡PERDEDORRRR! ni con 7 intentos puedes jajajaja el número era {numero_secreto}")
+                messagebox.showerror("Incorrecto", f"¡PERDEDORRRR! Ni con  intentos puedes jajajaja, el número era {numero_secreto}")
                 boton_adivinar.config(state="disabled")
+                campo_entrada.config(state="disabled")
                 etiqueta_intentos.config(text="Jajaja no tienes intentos jajaja")
-                guardar_resultado("Perdió")                
+                guardar_resultado("Perdió")     
+                guardar_resultado_sql("Perdió", dificultad_actual, intento)  # Por ejemplo           
                 return
              
             else:
@@ -62,28 +88,27 @@ def validar_numero():
 
 # Función selector dificultad
 def seleccionar_dificultad(Nivel):
-    global numero_intentos, limite_intento_max
-    if Nivel == "Facil":
-         limite_intento_max = 10
-         numero_intentos = 3
-    elif Nivel == "Medio":
-        limite_intento_max = 50
-        numero_intentos = 5
-    elif Nivel == "Difícil":
-        limite_intento_max = 100
-        numero_intentos = 10
-    elif Nivel == "Extremo":
-        limite_intento_max = 500
-        numero_intentos = 15
-    elif Nivel == "Injusto":
-        limite_intento_max = 1000
-        numero_intentos = 10
-    elif Nivel == "Imposible":
-        limite_intento_max = 10000
-        numero_intentos = 3
+    global numero_intentos, limite_intento_max, dificultad_actual
+    
+    configuraciones = {
+        "Facil":    {"limite": 10,    "intentos": 3},
+        "Medio":    {"limite": 50,    "intentos": 5},
+        "Difícil":  {"limite": 100,   "intentos": 10},
+        "Extremo":  {"limite": 500,   "intentos": 15},
+        "Injusto":  {"limite": 1000,  "intentos": 10},
+        "Imposible":{"limite": 10000, "intentos": 3}
+    }
+    
+    if Nivel in configuraciones:
+        limite_intento_max = configuraciones[Nivel]["limite"]
+        numero_intentos = configuraciones[Nivel]["intentos"]
+        dificultad_actual = Nivel
+    else:
+        # Por si llega un valor no esperado
+        print("Dificultad no reconocida")
 
     #Actualizar etiqueta de intentos:
-    etiqueta_intentos.config(text=f"Numeor de intentos: {numero_intentos}")
+    etiqueta_intentos.config(text=f"Número de intentos: {numero_intentos}")
 
     #Cerrar ventana del selector    
     selector.destroy()
@@ -91,8 +116,13 @@ def seleccionar_dificultad(Nivel):
 
 # Función para rendirse
 def rendirse():
-    messagebox.showinfo("Te rendiste", "JAJAJAJA SI ERES UN PER DE DOR!!!!!")
-    ventana.destroy()  # Cerrar la ventana
+    if guardar_resultado_sql == "Gano":
+        messagebox.showinfo("Lo Lograste", "Bien hecho campeón, disfruta tu coco")
+        ventana.destroy()  # Cerrar la ventana    
+    elif guardar_resultado_sql == "Perdio":
+        messagebox.showinfo("Te rendiste", "JAJAJAJA SI ERES ¡¡¡¡¡UN PER DE DOR!!!!!")
+        ventana.destroy()  # Cerrar la ventana       
+
 
 # Función para reiniciar el juego
 def reiniciar_juego():
@@ -100,12 +130,25 @@ def reiniciar_juego():
     numero_secreto = random.randint(1, limite_intento_max)
     entrada.set("")
 
-# Función para guardar las veces que jugador perdió y ganó en un TXT
+# Función para guardar las veces que jugador perdió y ganó en un TXT y SQL
 def guardar_resultado(resultado):
     with open("partidas.txt", "a", encoding="utf-8") as archivo:
-        archivo.write(resultado + "\n")
+        archivo.write(f"{resultado} - Dificultad: {dificultad_actual}\n")
 
-# --- 4. INTERFAZ GRÁFICA (TKINTER) ---
+def guardar_resultado_sql(resultado, dificultad, intento_final):
+    conexion = sqlite3.connect("datos_partidas.db")
+    cursor = conexion.cursor()
+    cursor.execute("INSERT INTO partidas (fecha, dificultad, numero_secreto, intento_final, resultado) VALUES (?, ?, ?, ?, ?)", (
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        dificultad,
+        numero_secreto,
+        intento_final,
+        resultado
+    ))
+    conexion.commit()
+    conexion.close()
+
+# --- 5. INTERFAZ GRÁFICA (TKINTER) ---
 
 def interfaz_ventanas():
     global ventana, selector
@@ -175,9 +218,10 @@ def interfaz_widgets():
     tk.Button(selector, text="Modo Injusto", font=("Arial", 16), fg="#FF0000", bg="#4B0000", command=lambda:seleccionar_dificultad("Injusto")).pack(pady=5)
     tk.Button(selector, text="Modo Imposible", font=("Arial", 16), fg="#FF0000", bg="#000000", command=lambda:seleccionar_dificultad("Imposible")).pack(pady=5)
 
-# --- 5. EJECUCIÓN PRINCIPAL ---
+# --- 6. EJECUCIÓN PRINCIPAL ---
 
 if __name__ == "__main__":
+    inicializar_db()
     interfaz_ventanas()
     interfaz_widgets()
     ventana.mainloop()  # Aquí queda el programa "vivo"
